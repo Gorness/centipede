@@ -1,21 +1,27 @@
 import os
 
-for dire, direct, file in os.walk(os.getcwd()):
-    if os.path.basename(dire) == 'Media':
-        for photo_folder in direct:
-            photo_where = os.path.join(dire, photo_folder)
-            photo_list = os.listdir(photo_where)
-            photo = list(filter(lambda x: photo_folder in x, photo_list))[0]
-            photo_old_path = os.path.join(photo_where, photo)
-            photo_new_path = os.path.join(dire, photo)
-            os.rename(photo_old_path, photo_new_path)
+for media, directories, files in os.walk(os.getcwd()):
+    if os.path.basename(media) == 'Media':
+        photos_moved = 0
+        for photo_folder in directories:
+            photo_folder_path = os.path.join(media, photo_folder)
 
-print('succ')
+            # 1. each photo folder contains a full photo and some thumbnail images
+            # photo_list lists all these files, usually 4 per photo_folder
+            photo_list = os.listdir(photo_folder_path)
 
+            # 2. large photos have names that match the photo_folder
+            large_photos_list = [photo for photo in photo_list if photo_folder in photo]
 
+            # Some "Media" folders don't actually contain any subfolders with photos
+            # their output is an empty list. So our list must not be empty
+            if large_photos_list:
+                photo = large_photos_list[0]
+                photo_old_path = os.path.join(photo_folder_path, photo)
+                photo_new_path = os.path.join(media, photo)
+                os.rename(photo_old_path, photo_new_path)
+                photos_moved += 1
 
-
-
-
-
-#
+        if photos_moved > 0:
+            print(media)
+            print(f"Moved {photos_moved} photos to the Media folder")
